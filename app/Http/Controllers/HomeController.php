@@ -26,7 +26,30 @@ class HomeController extends Controller
             'categories' => $categories,
             'selectedCategory' => $category,
             'farmers' => User::where('role', 'farmer')->whereNotNull('phone')->latest('id')->limit(6)->get(),
+            'mapFarmers' => $this->publicFarmLocations(),
+            'customerLocation' => $this->customerLocation($request),
             'articles' => Article::latest('created_at')->limit(3)->get(),
         ]);
+    }
+
+    private function publicFarmLocations(): array
+    {
+        return User::query()->where('role', 'farmer')->where('show_on_map', true)
+            ->whereNotNull('latitude')->whereNotNull('longitude')
+            ->get(['id', 'name', 'location_name', 'latitude', 'longitude'])
+            ->map(fn (User $farmer) => [
+                'name' => $farmer->name,
+                'location' => $farmer->location_name,
+                'lat' => (float) $farmer->latitude,
+                'lng' => (float) $farmer->longitude,
+            ])->all();
+    }
+
+    private function customerLocation(Request $request): ?array
+    {
+        $user = $request->user();
+        if (! $user || $user->role !== 'buyer' || $user->latitude === null || $user->longitude === null) return null;
+
+        return ['lat' => (float) $user->latitude, 'lng' => (float) $user->longitude];
     }
 }

@@ -24,6 +24,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        if ($user->role === 'farmer') {
+            $data['show_on_map'] = $request->boolean('show_on_map')
+                && isset($data['latitude'], $data['longitude'])
+                && $data['latitude'] !== '' && $data['longitude'] !== '';
+        }
         unset($data['profile_photo']);
         if ($request->hasFile('profile_photo')) {
             if ($user->profile_photo_path) Storage::disk('public')->delete($user->profile_photo_path);

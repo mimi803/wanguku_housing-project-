@@ -31,6 +31,7 @@ class User extends Authenticatable
         'longitude',
         'location_name',
         'profile_photo_path',
+        'show_on_map',
     ];
 
     /**
@@ -53,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'show_on_map' => 'boolean',
         ];
     }
 

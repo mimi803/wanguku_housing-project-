@@ -12,6 +12,7 @@ use App\Http\Controllers\FarmDeviceController;
 use App\Http\Controllers\FarmReportController;
 use App\Http\Controllers\CircularSystemsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\FarmMapController;
 use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/farm-map', FarmMapController::class)->name('farm-map');
 Route::get('/shop', ShopController::class)->name('shop');
 Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
     Route::get('/shop/{product}/order', [OrderController::class, 'create'])->name('orders.create');

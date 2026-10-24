@@ -4,6 +4,8 @@
 <section class="workspace customer-workspace">
     <div class="workspace-head"><div><span class="eyebrow">CUSTOMER ACCOUNT</span><h1>Welcome, {{ auth()->user()->name }}.</h1><p>Discover farm listings, check where they come from and contact the seller directly.</p></div><div class="hero-actions"><a class="button button-light bordered" href="{{ route('orders.mine') }}">My order requests</a><a class="button button-dark" href="{{ route('shop') }}">Browse produce</a></div></div>
     <div class="customer-steps"><article><span>01</span><strong>Choose a product</strong><small>Browse chicken, eggs, fish and vegetables.</small></article><article><span>02</span><strong>Check the farm</strong><small>Review the seller and their listed location.</small></article><article><span>03</span><strong>Message the seller</strong><small>Confirm availability, price and collection directly.</small></article></div>
+    <div class="section-heading account-heading"><div><span class="eyebrow">NEARBY FARMS</span><h2>Explore the farm network.</h2><p class="section-lede">Your saved location is visible only to you. Use your current location for a private one-time map pin.</p></div><a class="text-link" href="{{ route('farm-map') }}">Open full map ↗</a></div>
+    @include('partials.farm-map')
     <div class="section-heading account-heading"><div><span class="eyebrow">AVAILABLE NOW</span><h2>Listings from the farm network.</h2></div><a class="text-link" href="{{ route('home') }}#farm-shop">See all categories ↗</a></div>
     <div class="product-grid">@forelse($products as $product)
         @php
