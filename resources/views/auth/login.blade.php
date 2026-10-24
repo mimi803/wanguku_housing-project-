@@ -1,0 +1,5 @@
+@extends('layouts.app')
+@section('title', 'Sign in')
+@section('content')<section class="form-page"><div class="form-card"><span class="eyebrow">WANGUKU HOUSING</span><h1>Welcome back.</h1><p>Sign in to manage your customer or farmer account.</p>
+@if($errors->any())<div class="error-list">{{ $errors->first() }}</div>@endif
+<form method="post" action="{{ route('login.store') }}" class="form-stack">@csrf<label>Email address<input name="email" type="email" value="{{ old('email') }}" required autocomplete="email"></label><label>Password<input name="password" type="password" required autocomplete="current-password"></label><label class="check-row"><input type="checkbox" name="remember"> Keep me signed in</label><button class="button button-dark" type="submit">Sign in</button></form><p class="form-foot"><a href="{{ route('password.request') }}">Forgot your password?</a></p><p class="form-foot">New to Wanguku? <a href="{{ route('register') }}">Create an account</a></p></div></section>@endsection

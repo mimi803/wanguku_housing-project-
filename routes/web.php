@@ -1,0 +1,88 @@
+<?php
+
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BuyerAccountController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FarmDailyRecordController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\FarmerExchangeController;
+use App\Http\Controllers\HatcheryController;
+use App\Http\Controllers\FlockHealthController;
+use App\Http\Controllers\FarmDeviceController;
+use App\Http\Controllers\FarmReportController;
+use App\Http\Controllers\CircularSystemsController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OperationsController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ShopController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', HomeController::class)->name('home');
+Route::get('/shop', ShopController::class)->name('shop');
+Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
+    Route::get('/shop/{product}/order', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/shop/{product}/order', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('orders.store');
+    Route::get('/account/orders', [OrderController::class, 'buyerIndex'])->name('orders.mine');
+});
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.store');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::get('/join/{role}', [AuthController::class, 'showRegisterRole'])->where('role', 'farmer|buyer')->name('register.role');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
+    Route::get('/forgot-password', fn () => view('auth.forgot-password'))->name('password.request');
+    Route::post('/forgot-password', function (Request $request) {
+        $request->validate(['email' => ['required', 'email']]);
+        $status = Password::sendResetLink($request->only('email'));
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
+    })->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', fn (string $token) => view('auth.reset-password', ['token' => $token, 'email' => request('email')]))->name('password.reset');
+    Route::post('/reset-password', function (Request $request) {
+        $data = $request->validate(['token' => ['required'], 'email' => ['required', 'email'], 'password' => ['required', 'string', 'min:8', 'confirmed']]);
+        $status = Password::reset($data, function ($user, $password) {
+            $user->forceFill(['password' => bcrypt($password)])->save();
+        });
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => [__($status)]])->withInput($request->only('email'));
+    })->middleware('throttle:5,1')->name('password.update');
+});
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+Route::get('/account', BuyerAccountController::class)->middleware(['auth', 'role:buyer,admin'])->name('account');
+Route::middleware(['auth', 'role:farmer,admin'])->prefix('farm')->name('farm.')->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/products', [ProductController::class, 'index'])->name('products');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/operations', [OperationsController::class, 'index'])->name('operations');
+    Route::post('/operations', [OperationsController::class, 'store'])->name('operations.store');
+    Route::get('/daily-records', [FarmDailyRecordController::class, 'index'])->name('daily-records');
+    Route::post('/daily-records', [FarmDailyRecordController::class, 'store'])->name('daily-records.store');
+    Route::get('/orders', [OrderController::class, 'farmerIndex'])->name('orders');
+    Route::patch('/orders/{order}', [OrderController::class, 'updateStatus'])->name('orders.status');
+    Route::get('/network', [FarmerExchangeController::class, 'index'])->name('network');
+    Route::post('/network', [FarmerExchangeController::class, 'store'])->name('network.store');
+    Route::patch('/network/{post}', [FarmerExchangeController::class, 'updateStatus'])->name('network.status');
+    Route::get('/hatchery', [HatcheryController::class, 'index'])->name('hatchery');
+    Route::post('/hatchery', [HatcheryController::class, 'store'])->name('hatchery.store');
+    Route::patch('/hatchery/{batch}', [HatcheryController::class, 'complete'])->name('hatchery.complete');
+    Route::get('/flock-health', [FlockHealthController::class, 'index'])->name('flock-health');
+    Route::post('/flock-health', [FlockHealthController::class, 'store'])->name('flock-health.store');
+    Route::patch('/flock-health/{schedule}', [FlockHealthController::class, 'complete'])->name('flock-health.complete');
+    Route::get('/devices', [FarmDeviceController::class, 'index'])->name('devices');
+    Route::post('/devices', [FarmDeviceController::class, 'store'])->name('devices.store');
+    Route::patch('/devices/{device}/revoke', [FarmDeviceController::class, 'revoke'])->name('devices.revoke');
+    Route::get('/reports', [FarmReportController::class, 'index'])->name('reports');
+    Route::get('/circular-systems', [CircularSystemsController::class, 'index'])->name('circular-systems');
+    Route::post('/circular-systems/plans', [CircularSystemsController::class, 'storePlan'])->name('circular-systems.plans.store');
+    Route::patch('/circular-systems/plans/{plan}', [CircularSystemsController::class, 'updatePlan'])->name('circular-systems.plans.update');
+    Route::post('/circular-systems/flows', [CircularSystemsController::class, 'storeFlow'])->name('circular-systems.flows.store');
+});

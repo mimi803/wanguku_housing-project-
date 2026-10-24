@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" role="img" aria-labelledby="title desc">
+  <title id="title">Wanguku Housing Organic Chicken Farm</title>
+  <desc id="desc">A black hen carrying a green sprig above a nest and two eggs, with Wanguku Housing and Chicken Shop and Hatchery lettering.</desc>
+  <defs><path id="top-arc" d="M 64 250 A 186 186 0 0 1 436 250"/></defs>
+  <text fill="#1e1e1e" font-family="Arial, sans-serif" font-size="39" font-weight="500" letter-spacing="7"><textPath href="#top-arc" startOffset="50%" text-anchor="middle">WANGUKU HOUSING</textPath></text>
+  <g fill="#292929">
+    <path d="M178 320c-25-11-39-34-38-63 1-20 10-43 27-62l8-46 18 19 9-36 19 17 13-29 17 27c23-5 38 9 40 32l4 25c20 22 29 55 26 88-3 45-32 73-83 77-39 3-68-13-80-49Z"/>
+    <path d="M211 278c28 14 66 8 93-14-8 35-42 56-89 56-21 0-38-7-49-19 17-1 32-9 45-23Z" fill="#fff"/>
+    <path d="M295 148c-7-11-6-20 2-29 8 8 14 8 20 1 5 11 2 20-7 27Z"/>
+    <path d="m309 164 44 7-38 16Z" fill="#83a75c"/>
+    <circle cx="296" cy="151" r="4" fill="#fff"/>
+  </g>
+  <g fill="none" stroke="#83a75c" stroke-linecap="round" stroke-width="5">
+    <path d="M306 169c27 4 47 18 63 40"/><path d="M337 181c-4-12-1-20 9-25 6 11 4 20-3 27"/><path d="M352 191c9-10 19-10 29-3-7 10-16 13-27 9"/><path d="M363 205c9-5 18-2 23 7-9 7-17 6-23-1"/>
+  </g>
+  <g fill="#292929"><ellipse cx="367" cy="355" rx="31" ry="44" transform="rotate(22 367 355)"/><ellipse cx="319" cy="383" rx="35" ry="27" transform="rotate(-10 319 383)"/></g>
+  <g fill="none" stroke="#292929" stroke-linecap="round" stroke-width="5">
+    <path d="M145 398c45-25 93-18 140 4 34 16 68 17 104 1M155 415c44-19 83-13 122 4 40 18 75 16 113-2M172 428c35-15 69-13 101 3 31 15 65 15 99 1M181 395l42 38m-6-40-32 40m117-37 35 32m-8-36-30 40"/>
+  </g>
+  <text x="250" y="457" fill="#252525" font-family="Arial, sans-serif" font-size="24" letter-spacing="5" text-anchor="middle">WANGUKU ORGANIC</text>
+  <text x="250" y="493" font-family="Arial, sans-serif" font-size="39" font-weight="700" text-anchor="middle"><tspan fill="#4b785b">CHICKEN</tspan><tspan fill="#252525"> FARM</tspan></text>
+  <text x="250" y="526" fill="#252525" font-family="Arial, sans-serif" font-size="20" letter-spacing="1.1" text-anchor="middle" transform="translate(0 -3)">CHICKEN SHOP AND HATCHERY</text>
+</svg>
