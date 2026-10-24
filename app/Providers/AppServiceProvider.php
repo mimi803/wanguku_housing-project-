@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Render terminates TLS before forwarding requests to the container.
+        // Keep generated assets, links, redirects, and form actions on HTTPS.
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
     }
 }
