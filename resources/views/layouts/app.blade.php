@@ -12,14 +12,14 @@
 </head>
 <body>
 <header class="site-header"><a class="brand" href="{{ route('home') }}"><img class="brand-logo" src="{{ asset('images/wanguku-logo-original.jpeg') }}?v={{ filemtime(public_path('images/wanguku-logo-original.jpeg')) }}" alt="Wanguku Housing Organic Chicken Farm · Chicken Shop and Hatchery"></a>
-    <nav><a href="{{ route('shop') }}">Shop</a><a href="{{ route('farm-map') }}">Farm map</a><a href="{{ route('home') }}#farmer-connect">Farm network</a><a href="{{ route('home') }}#vision">Vision 2035</a>
+    <nav><a href="{{ route('shop') }}">Shop</a><a href="{{ route('farm-map') }}">Farm map</a>@if(config('services.resource_map.public_url'))<a href="{{ config('services.resource_map.public_url') }}" target="_blank" rel="noopener">Resource map</a>@endif<a href="{{ route('home') }}#farmer-connect">Farm network</a><a href="{{ route('home') }}#vision">Vision 2035</a>
     <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" title="Switch theme"><span data-theme-glyph aria-hidden="true">☾</span><span data-theme-label>Dark</span></button>
     @auth <a href="{{ route('shop') }}">Marketplace</a>@if(in_array(auth()->user()->role, ['farmer','admin']))<a href="{{ route('farm.dashboard') }}">Farm workspace</a><a href="{{ route('farm.orders') }}">Orders</a><a href="{{ route('farm.network') }}">Farmer network</a>@else<a href="{{ route('account') }}">My account</a><a href="{{ route('orders.mine') }}">My orders</a>@endif<a href="{{ route('profile.edit') }}">Profile</a>
         <form class="inline" method="post" action="{{ route('logout') }}">@csrf<button class="nav-button">Sign out</button></form>
     @else <a href="{{ route('login') }}">Sign in</a><a class="nav-cta" href="{{ route('register.role', ['role' => 'buyer']) }}">Customer account</a>@endauth
     </nav>
 </header>
-<main>@if(session('status'))<div class="flash">{{ session('status') }}</div>@endif @yield('content')</main>
+<main>@if(session('status'))<div class="flash">{{ session('status') }}</div>@endif @if(session('integration_warning'))<div class="flash" role="status">{{ session('integration_warning') }}</div>@endif @yield('content')</main>
 <footer class="site-footer"><div><a class="brand brand-light" href="{{ route('home') }}"><img class="brand-logo" src="{{ asset('images/wanguku-logo-original.jpeg') }}?v={{ filemtime(public_path('images/wanguku-logo-original.jpeg')) }}" alt="Wanguku Housing Organic Chicken Farm · Chicken Shop and Hatchery"></a><p>Growing food. Growing forward.</p></div><span>K Road, Juja · Growing since 2021</span></footer>
 @stack('scripts')
 <script>

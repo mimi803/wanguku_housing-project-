@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\ResourceMapClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -45,6 +46,11 @@ class OrderController extends Controller
                 'updated_at' => now(),
             ]);
         });
+
+        $order->load('product.farmer');
+        if ($order->product?->farmer) {
+            app(ResourceMapClient::class)->sync($order->product->farmer);
+        }
 
         return redirect()->route('orders.mine')->with('status', 'Order request sent. Contact the farmer to agree on payment and collection or delivery.');
     }
@@ -93,6 +99,11 @@ class OrderController extends Controller
             $locked->updated_at = now();
             $locked->save();
         });
+
+        $order->load('product.farmer');
+        if ($order->product?->farmer) {
+            app(ResourceMapClient::class)->sync($order->product->farmer);
+        }
 
         return back()->with('status', 'Order updated.');
     }

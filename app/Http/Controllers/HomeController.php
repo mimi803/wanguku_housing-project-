@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\FarmMapLocations;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -26,23 +27,10 @@ class HomeController extends Controller
             'categories' => $categories,
             'selectedCategory' => $category,
             'farmers' => User::where('role', 'farmer')->whereNotNull('phone')->latest('id')->limit(6)->get(),
-            'mapFarmers' => $this->publicFarmLocations(),
+            'mapFarmers' => app(FarmMapLocations::class)->publicFarms(),
             'customerLocation' => $this->customerLocation($request),
             'articles' => Article::latest('created_at')->limit(3)->get(),
         ]);
-    }
-
-    private function publicFarmLocations(): array
-    {
-        return User::query()->where('role', 'farmer')->where('show_on_map', true)
-            ->whereNotNull('latitude')->whereNotNull('longitude')
-            ->get(['id', 'name', 'location_name', 'latitude', 'longitude'])
-            ->map(fn (User $farmer) => [
-                'name' => $farmer->name,
-                'location' => $farmer->location_name,
-                'lat' => (float) $farmer->latitude,
-                'lng' => (float) $farmer->longitude,
-            ])->all();
     }
 
     private function customerLocation(Request $request): ?array

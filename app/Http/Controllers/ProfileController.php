@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ResourceMapClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -36,6 +37,15 @@ class ProfileController extends Controller
         }
         $user->forceFill($data)->save();
 
-        return back()->with('status', 'Your profile has been updated.');
+        $response = back()->with('status', 'Your profile has been updated.');
+        if ($user->role === 'farmer') {
+            $map = app(ResourceMapClient::class);
+            $synced = $user->show_on_map ? $map->sync($user) : $map->remove($user);
+            if ($user->show_on_map && ! $synced) {
+                $response->with('integration_warning', 'Your profile is saved, but the Resource Center could not be updated. Check the map connection settings.');
+            }
+        }
+
+        return $response;
     }
 }

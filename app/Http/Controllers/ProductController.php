@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\ResourceMapClient;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -36,6 +37,14 @@ class ProductController extends Controller
         $data['farmer_id'] = $request->user()->id;
         Product::create($data);
 
-        return back()->with('status', 'Your listing is now visible to customers.');
+        $farmer = $request->user();
+        $synced = ! $farmer->show_on_map || app(ResourceMapClient::class)->sync($farmer);
+
+        $response = back()->with('status', 'Your listing is now visible to customers.');
+        if ($farmer->show_on_map && ! $synced) {
+            $response->with('integration_warning', 'Your Wanguku listing is saved, but the Resource Map could not be updated. Check the map connection settings.');
+        }
+
+        return $response;
     }
 }

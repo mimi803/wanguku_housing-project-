@@ -14,6 +14,13 @@ return [
     |
     */
 
+    'resource_map' => [
+        'enabled' => (bool) env('RESOURCE_MAP_SYNC_ENABLED', false),
+        'url' => env('RESOURCE_MAP_URL', 'http://127.0.0.1:8080'),
+        'public_url' => env('RESOURCE_MAP_PUBLIC_URL', ''),
+        'token' => env('RESOURCE_MAP_TOKEN'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

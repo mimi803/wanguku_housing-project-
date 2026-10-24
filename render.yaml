@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: wanguku-housing
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: Wanguku Housing
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: wanguku-housing-db
+          property: connectionString
+      - key: SESSION_DRIVER
+        value: file
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: public
+      - key: RESOURCE_MAP_SYNC_ENABLED
+        value: "false"
+      - key: RESOURCE_MAP_PUBLIC_URL
+        value: ""
+
+databases:
+  - name: wanguku-housing-db
+    databaseName: wanguku_housing
+    user: wanguku_housing
+    plan: free
+    region: singapore

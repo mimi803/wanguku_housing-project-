@@ -7,7 +7,7 @@
     <script type="application/json" data-map-customer>{!! Illuminate\Support\Js::encode($customerLocation) !!}</script>
     <div class="farm-map-toolbar">
         <div class="farm-map-legend"><span><i class="map-dot farm-dot"></i> Partner farms</span>@if($customerLocation)<span><i class="map-dot customer-dot"></i> Your saved location</span>@endif</div>
-        <button class="button button-light bordered" type="button" data-locate-customer>Use my current location</button>
+        <div class="farm-map-actions">@if(config('services.resource_map.public_url'))<a class="button button-light bordered" href="{{ config('services.resource_map.public_url') }}" target="_blank" rel="noopener">Open Resource Map ↗</a>@endif<button class="button button-light bordered" type="button" data-locate-customer>Use my current location</button></div>
     </div>
     <div class="farm-map" role="application" aria-label="Interactive map of partner farms and your location"></div>
     <p class="farm-map-message" data-map-message aria-live="polite">Farm locations appear when farmers choose to share their map location.</p>
@@ -62,6 +62,20 @@
             const location = document.createElement('div');
             location.textContent = farm.location;
             popup.append(location);
+        }
+        const marketUrl = farm.market_url;
+        if (marketUrl) {
+            try {
+                const linkUrl = new URL(marketUrl, window.location.href);
+                if (['http:', 'https:'].includes(linkUrl.protocol)) {
+                    const link = document.createElement('a');
+                    link.href = linkUrl.href;
+                    link.textContent = farm.products?.length ? `Shop ${farm.products.length} available item${farm.products.length === 1 ? '' : 's'} ↗` : 'Browse this farm ↗';
+                    link.target = '_blank';
+                    link.rel = 'noopener';
+                    popup.append(link);
+                }
+            } catch (_) {}
         }
         marker.bindPopup(popup);
         bounds.push([farm.lat, farm.lng]);

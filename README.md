@@ -37,6 +37,12 @@ env DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/database.sqlite" SESSION_DRI
 
 Open the address Artisan prints. If port 8001 is busy, use another port and open that address. The SQLite database, `.env`, uploaded files and generated credentials are excluded from Git.
 
+## Free Render trial
+
+The repository includes a Dockerfile and `render.yaml` Blueprint for a temporary public trial. Push the project to GitHub, sign in to Render, choose **New → Blueprint**, connect `mimi803/wanguku_housing-project-`, and apply the Blueprint from the repository root. It creates a free web service and a free PostgreSQL database, runs migrations at startup, and sets an application key. Render shows the public `onrender.com` address in the service dashboard after the first deploy succeeds.
+
+Render's free web service sleeps after 15 minutes without traffic and its filesystem is temporary, so uploaded profile/product photos can disappear after a restart or deploy. The free PostgreSQL database expires after 30 days and has no backups; export any trial data before expiry. Use this setup for evaluation only, not real farm/customer records. Resource Center synchronization is disabled in the trial until that separate app is hosted at a public HTTPS address and its shared token is configured. Password reset emails also require configuring a production mail provider.
+
 ## Sensor API
 
 Register a device from **Farm workspace → Sensor monitoring**. The app shows its bearer token once; keep it private. A sensor posts JSON containing `value` and optional `captured_at` to `/api/farm/devices/{device-id}/readings`. Use HTTPS for a public deployment. Hardware must be installed and configured separately.
@@ -46,3 +52,7 @@ Register a device from **Farm workspace → Sensor monitoring**. The app shows i
 The circular-systems page records planning assumptions and material flows; it does not assess structural safety, wastewater quality, food safety, animal welfare or whether material reuse is safe. Obtain qualified local review before acting on those plans. Health records support observation and follow-up; they do not diagnose or prescribe treatment.
 
 The Laravel app must be served from this project's `public/` directory. For a public deployment, configure secure HTTPS, mail delivery for password resets, backups and the appropriate production database. Configure a payment provider only after its merchant credentials and callback endpoint are ready. Keep all credentials out of committed files.
+
+## Resource Center map connection
+
+When the Resource Center Docker app is running, set `RESOURCE_MAP_SYNC_ENABLED=true`, `RESOURCE_MAP_URL=http://127.0.0.1:8080`, `RESOURCE_MAP_PUBLIC_URL=http://127.0.0.1:8080/map`, and the shared `RESOURCE_MAP_TOKEN` in `.env`. Use the same token as `WANGUKU_SYNC_TOKEN` in the Resource Center root `.env`. Run `php artisan resource-map:sync-farms` once to publish existing farmers who opted in. Thereafter profile consent, new produce listings and stock changes update the Resource Center automatically. Only opted-in farmer locations and available product information are sent; buyer locations are never sent to the Resource Center.
