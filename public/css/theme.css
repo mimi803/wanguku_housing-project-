@@ -1,0 +1,142 @@
+:root {
+    color-scheme: light;
+    --cream: #f4f7f1;
+    --paper: #ffffff;
+    --ink: #19392f;
+    --muted: #687b70;
+    --line: #dfe7df;
+    --forest: #174434;
+    --forest-deep: #102f28;
+    --leaf: #4b785b;
+    --lime: #d7eb94;
+    --surface-soft: #edf3eb;
+    --surface-raised: #ffffff;
+    --header-glass: rgb(250 252 248 / 92%);
+    --shadow: 0 18px 52px rgb(23 57 45 / 8%);
+    --focus-ring: 0 0 0 4px rgb(117 158 94 / 23%);
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --cream: #101916;
+    --paper: #17231f;
+    --ink: #e7eee8;
+    --muted: #a9b9af;
+    --line: #314039;
+    --forest: #27573f;
+    --forest-deep: #0d211b;
+    --leaf: #82aa79;
+    --lime: #d7eb94;
+    --surface-soft: #1c2c25;
+    --surface-raised: #1a2822;
+    --header-glass: rgb(17 29 24 / 94%);
+    --shadow: 0 18px 52px rgb(0 0 0 / 24%);
+    --focus-ring: 0 0 0 4px rgb(143 186 118 / 25%);
+}
+
+html { scroll-padding-top: 92px; }
+body { background: var(--cream); color: var(--ink); transition: background-color .2s ease, color .2s ease; }
+.site-header { position: sticky; top: 0; z-index: 1000; background: var(--header-glass); border-bottom-color: var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.site-header nav { color: var(--muted); }
+.site-header nav a, .nav-button { transition: color .16s ease; }
+.theme-toggle { min-height: 38px; padding: 7px 11px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-soft); color: var(--ink); font-size: 11px; font-weight: 800; cursor: pointer; transition: border-color .16s ease, background-color .16s ease, transform .16s ease; }
+.theme-toggle:hover { transform: translateY(-1px); border-color: var(--leaf); }
+.theme-toggle [data-theme-glyph] { color: var(--leaf); font-size: 15px; line-height: 1; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.button { transition: transform .18s ease, filter .18s ease, box-shadow .18s ease; }
+.button:hover { box-shadow: 0 7px 18px rgb(19 54 39 / 13%); }
+.panel, .product-card, .farmer-card, .form-card, .dashboard-stats article, .operation-stats article, .order-card, .network-card, .farm-map-shell { transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .18s ease; }
+.product-card:hover, .farmer-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.workspace-head h1, .form-card h1, .section h2, .about h2 { letter-spacing: -.055em; }
+.eyebrow { letter-spacing: .16em; }
+.workspace-head { margin-bottom: 32px; }
+.panel, .form-card { box-shadow: var(--shadow); }
+.innovation-section { max-width: 1440px; margin: 0 auto; padding: 70px max(6vw, 30px); display: grid; grid-template-columns: .72fr 1.28fr; gap: 7%; align-items: center; background: var(--surface-soft); border-block: 1px solid var(--line); }
+.innovation-intro h2 { margin: 12px 0; color: var(--ink); font: 800 clamp(34px, 4.3vw, 52px)/1.04 Manrope, sans-serif; letter-spacing: -.06em; }
+.innovation-intro p { max-width: 430px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.innovation-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+.innovation-paths a { min-height: 205px; padding: 18px; display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-raised); box-shadow: 0 9px 26px rgb(23 57 45 / 5%); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.innovation-paths a:hover { transform: translateY(-3px); border-color: var(--leaf); box-shadow: var(--shadow); }
+.innovation-paths a > span { color: var(--leaf); font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+.innovation-paths a > strong { margin-top: 17px; color: var(--ink); font: 800 15px/1.3 Manrope, sans-serif; }
+.innovation-paths a > small { margin-top: 8px; color: var(--muted); font-size: 10px; line-height: 1.65; }
+.innovation-paths a > b { margin-top: auto; padding-top: 13px; color: var(--leaf); font-size: 10px; }
+
+:root[data-theme="dark"] body { background: var(--cream); color: var(--ink); }
+:root[data-theme="dark"] .site-header { background: var(--header-glass); border-color: var(--line); }
+:root[data-theme="dark"] .site-header nav a:hover, :root[data-theme="dark"] .text-link:hover { color: var(--lime); }
+:root[data-theme="dark"] .site-header .brand { color: var(--ink); }
+:root[data-theme="dark"] .theme-toggle { background: #20332a; border-color: #43564a; color: #e9f0e8; }
+:root[data-theme="dark"] .nav-cta, :root[data-theme="dark"] .button-dark { background: #387452; color: #fff; }
+:root[data-theme="dark"] .button-light { background: #e8efdf; color: #203c2b; }
+:root[data-theme="dark"] .button.bordered { border-color: #46574b; }
+:root[data-theme="dark"] .button-lime { background: #d7eb94; color: #203e2e; }
+
+:root[data-theme="dark"] :is(.product-card, .farmer-card, .panel, .form-card, .dashboard-stats article, .operation-stats article, .order-card, .network-card, .farm-map-shell, .stat, .farm-card) {
+    background-color: var(--surface-raised);
+    border-color: var(--line);
+    color: var(--ink);
+    box-shadow: var(--shadow);
+}
+:root[data-theme="dark"] :is(.section h2, .about h2, .workspace-head h1, .form-card h1, .panel h2, .panel h3, .product-content h3, .farmer-card h3, .network-card h3, .order-card h2, .card-head h2, .stat strong) { color: var(--ink); }
+:root[data-theme="dark"] :is(.product-content p, .product-meta span, .seller-row, .section-lede, .intro > p, .about > div > p, .workspace-head p, .form-card > p, .health-note, .muted, .network-card > p, .order-card p, .order-card small, .farmer-card p, .stat span) { color: var(--muted); }
+:root[data-theme="dark"] :is(.product-meta, .seller-row, .activity-row, .list-row, .daily-record-row, .operation-log, .report-day, .resource-flow-row, .health-schedule, .batch-card) { border-color: var(--line); }
+:root[data-theme="dark"] :is(.tag, .chip, .status-pill, .activity-icon, .tool-grid a, .customer-steps article, .batch-dates span, .order-summary, .health-guidance, .floor-plan-item, .device-api-help, .vision-roadmap .roadmap-icon) { background: var(--surface-soft); border-color: var(--line); color: #c6d9c7; }
+:root[data-theme="dark"] .chip.selected { background: #387452; color: #fff; }
+:root[data-theme="dark"] :is(.tool-grid a strong, .list-row strong, .activity-row strong, .daily-record-metrics b, .report-summary-row strong, .order-card-state strong) { color: var(--ink); }
+:root[data-theme="dark"] .tool-grid a:hover { background: #263a2f; border-color: #63845f; }
+:root[data-theme="dark"] :is(.form-stack input, .form-stack select, .form-stack textarea, .shop-filters input, .shop-filters select, .report-filter input, .network-status-form select, .order-update-form select) {
+    color-scheme: dark;
+    background: #111d18;
+    color: var(--ink);
+    border-color: #43544a;
+}
+:root[data-theme="dark"] :is(.form-stack label, .network-status-form label, .order-update-form label, .report-filter label) { color: #c4d0c7; }
+:root[data-theme="dark"] :is(.form-stack input::placeholder, .form-stack textarea::placeholder, .shop-filters input::placeholder) { color: #82948a; }
+:root[data-theme="dark"] .form-stack input:focus, :root[data-theme="dark"] .form-stack select:focus, :root[data-theme="dark"] .form-stack textarea:focus { border-color: #8dad79; box-shadow: var(--focus-ring); }
+:root[data-theme="dark"] :is(.empty-state, .connect-empty, .produce-empty) { background: #17241e; border-color: #405249; color: var(--muted); }
+:root[data-theme="dark"] :is(.form-page, .workspace) { color: var(--ink); }
+:root[data-theme="dark"] .farmer-map-legend { color: #d1ddd4; }
+:root[data-theme="dark"] .farm-map-message { background: var(--surface-raised); color: var(--muted); border-color: var(--line); }
+:root[data-theme="dark"] .map-consent { background: #203329; border-color: #49624a; color: #dce8dc !important; }
+:root[data-theme="dark"] .flash { background: #213a2b; color: #d9ebce; }
+:root[data-theme="dark"] .error-list { background: #3a2523; color: #ffd5cb; border-color: #74443e; }
+:root[data-theme="dark"] .site-footer { background: #0a1713; border-top: 1px solid #26372e; }
+:root[data-theme="dark"] .site-footer p, :root[data-theme="dark"] .site-footer > span { color: #a7b9ad; }
+:root[data-theme="dark"] .pagination-wrap a, :root[data-theme="dark"] .pagination-wrap span { background: #22342a; color: #dce9d9; }
+:root[data-theme="dark"] .contact-button, :root[data-theme="dark"] .network-actions a { background: #39744d; color: #fff; }
+:root[data-theme="dark"] .network-actions a:last-child { background: #26372d; color: #dbe8db; }
+:root[data-theme="dark"] .profile-photo, :root[data-theme="dark"] .profile-placeholder { background: #273b2e; color: #d8e8d2; }
+:root[data-theme="dark"] .report-bar { background: #2a3930; }
+:root[data-theme="dark"] .device-token-panel { background: #21372a; border-color: #496347; }
+:root[data-theme="dark"] .device-token-panel p, :root[data-theme="dark"] .device-token-panel small { color: #c2d1c5; }
+:root[data-theme="dark"] .vision-safety-note { background: #342f21; border-color: #655832; }
+:root[data-theme="dark"] .vision-safety-note strong, :root[data-theme="dark"] .vision-safety-note p { color: #e7d7a9; }
+:root[data-theme="dark"] .farm-map-shell .leaflet-popup-content-wrapper, :root[data-theme="dark"] .farm-map-shell .leaflet-popup-tip { background: #1c2b24; color: var(--ink); }
+:root[data-theme="dark"] .farm-map-shell .leaflet-control-attribution { background: rgb(20 33 27 / 88%); color: #d2ded4; }
+:root[data-theme="dark"] .farm-map-shell .leaflet-control-attribution a { color: #b7d69d; }
+:root[data-theme="dark"] .innovation-section { background: #15221c; border-color: var(--line); }
+:root[data-theme="dark"] .innovation-paths a { background: #1a2822; border-color: #35463d; }
+:root[data-theme="dark"] .innovation-paths a:hover { border-color: #78966e; }
+
+@media (max-width: 850px) {
+    .site-header { gap: 12px; }
+    .site-header nav { gap: 14px; }
+    .innovation-section { grid-template-columns: 1fr; gap: 26px; }
+}
+@media (max-width: 600px) {
+    .site-header { align-items: center; }
+    .site-header nav { max-width: 76%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .site-header nav::-webkit-scrollbar { display: none; }
+    .site-header nav a:nth-child(2) { display: inline-flex; }
+    .site-header nav a[href*="#farmer-connect"], .site-header nav a[href*="#vision"] { display: none; }
+    .theme-toggle { flex: none; min-height: 34px; padding: 6px 9px; }
+    .theme-toggle [data-theme-label] { font-size: 10px; }
+    .innovation-section { padding: 54px 21px; }
+    .innovation-paths { grid-template-columns: 1fr; }
+    .innovation-paths a { min-height: 160px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

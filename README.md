@@ -7,6 +7,7 @@ Laravel 12 website and farm workspace for Wanguku Housing. This project is separ
 - Public farm vision and produce marketplace with farmer and customer accounts.
 - Farmer listings with photo uploads, profile/location information and WhatsApp contact.
 - Interactive OpenStreetMap showing only farms whose owners opt in; customers see their saved location only in their own signed-in view or can locate themselves for a one-time private pin.
+- Persistent light and dark themes with a responsive research, innovation and farmer-connect experience.
 - Customer order requests, stock reservation, farmer status updates and customer order history. Payment is coordinated directly with the farm; online checkout is not connected.
 - Farmer resource and knowledge exchange board.
 - Daily flock and production records for headcount, eggs, feed, water and deaths.
