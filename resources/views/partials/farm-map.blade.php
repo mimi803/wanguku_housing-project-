@@ -6,6 +6,7 @@
     <script type="application/json" data-map-farms>{!! Illuminate\Support\Js::encode($mapFarmers) !!}</script>
     <script type="application/json" data-map-customer>{!! Illuminate\Support\Js::encode($customerLocation) !!}</script>
     <div class="farm-map-toolbar">
+        <form class="farm-map-search" data-map-search role="search"><label class="sr-only" for="farm-map-search">Search a town or area</label><input id="farm-map-search" type="search" name="q" placeholder="Search a town or area" autocomplete="off"><button class="button button-dark" type="submit">Find</button></form>
         <div class="farm-map-legend"><span><i class="map-dot farm-dot"></i> Partner farms</span>@if($customerLocation)<span><i class="map-dot customer-dot"></i> Your saved location</span>@endif</div>
         <div class="farm-map-actions">@if(config('services.resource_map.public_url'))<a class="button button-light bordered" href="{{ config('services.resource_map.public_url') }}" target="_blank" rel="noopener">Open Resource Map ↗</a>@endif<button class="button button-light bordered" type="button" data-locate-customer>Use my current location</button></div>
     </div>
@@ -32,16 +33,16 @@
         customer = JSON.parse(shell.querySelector('[data-map-customer]').textContent || 'null');
     } catch (error) {
         message.textContent = 'The saved map locations could not be read. Refresh the page and try again.';
-        console.error('Wanguku map location data could not be parsed.', error);
+        console.error('Farmers Connect map location data could not be parsed.', error);
         return;
     }
 
     let map;
     try {
-        map = L.map(shell.querySelector('.farm-map'), { scrollWheelZoom: false }).setView([-1.1, 37.0], 8);
+        map = L.map(shell.querySelector('.farm-map'), { scrollWheelZoom: false }).setView([-0.02, 37.9], 6);
     } catch (error) {
         message.textContent = 'The map could not be started. Refresh the page and try again.';
-        console.error('Wanguku map initialization failed.', error);
+        console.error('Farmers Connect map initialization failed.', error);
         return;
     }
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -96,7 +97,7 @@
     }
     if (bounds.length > 1) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 13 });
     else if (farms.length) map.setView([farms[0].lat, farms[0].lng], 12);
-    else if (!customer) message.textContent = 'No farmers have shared a map location yet. You can still use the map to find your current location.';
+    else if (!customer) message.textContent = 'No farmers have shared a map location yet. Search any town or use your current location.';
     setTimeout(() => map.invalidateSize(), 250);
 
     shell.querySelector('[data-locate-customer]').addEventListener('click', () => {
@@ -105,7 +106,7 @@
             return;
         }
         if (!window.isSecureContext) {
-            message.textContent = 'Browser location requires a secure page. Open Wanguku on localhost or an HTTPS address.';
+            message.textContent = 'Browser location requires a secure page. Open Farmers Connect on localhost or an HTTPS address.';
             return;
         }
         message.textContent = 'Waiting for your location permission…';
@@ -120,6 +121,32 @@
                     ? 'Finding your location timed out. Move to an area with better GPS or network signal and retry.'
                     : 'Your device could not determine its location. Check that location services are enabled and retry.';
         }, { enableHighAccuracy: true, timeout: 12000 });
+    });
+
+    const searchForm = shell.querySelector('[data-map-search]');
+    let searchMarker = null;
+    searchForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const query = new FormData(searchForm).get('q')?.toString().trim();
+        if (!query) return;
+        message.textContent = 'Searching OpenStreetMap…';
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=ke&q=${encodeURIComponent(query)}`, { headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error('Search unavailable');
+            const results = await response.json();
+            if (!results.length) { message.textContent = 'No Kenyan place matched that search. Try a nearby town or county.'; return; }
+            const place = results[0];
+            const location = { lat: Number(place.lat), lng: Number(place.lon) };
+            if (!Number.isFinite(location.lat) || !Number.isFinite(location.lng)) throw new Error('Invalid place coordinates');
+            map.setView([location.lat, location.lng], 13);
+            const popup = document.createElement('span');
+            popup.textContent = place.display_name;
+            if (searchMarker) map.removeLayer(searchMarker);
+            searchMarker = L.marker([location.lat, location.lng]).addTo(map).bindPopup(popup).openPopup();
+            message.textContent = `Showing ${place.display_name}.`;
+        } catch (_) {
+            message.textContent = 'Place search is unavailable. Check your connection or use your current location.';
+        }
     });
 })();
 </script>

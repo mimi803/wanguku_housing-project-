@@ -9,7 +9,7 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_NAME
-        value: Wanguku Housing
+        value: Farmers Connect
       - key: APP_DEBUG
         value: "false"
       - key: APP_KEY

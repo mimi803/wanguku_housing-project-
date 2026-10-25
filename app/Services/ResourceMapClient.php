@@ -11,7 +11,7 @@ class ResourceMapClient
 {
     public function sync(User $farmer): bool
     {
-        if ($farmer->role !== 'farmer' || ! $farmer->show_on_map || $farmer->latitude === null || $farmer->longitude === null) {
+        if ($farmer->role !== 'farmer' || ! $farmer->farmer_verified_at || ! $farmer->show_on_map || $farmer->latitude === null || $farmer->longitude === null) {
             return $this->remove($farmer);
         }
 
@@ -27,7 +27,7 @@ class ResourceMapClient
 
         $payload = [
             'name' => $farmer->name,
-            'description' => 'A Wanguku Housing farm. Browse current produce and contact the farmer through the marketplace.',
+            'description' => 'A verified Farmers Connect farm. Browse current produce and contact the farmer through the marketplace.',
             'location_label' => $farmer->location_name,
             'latitude' => (float) $farmer->latitude,
             'longitude' => (float) $farmer->longitude,

@@ -1,6 +1,6 @@
-# Wanguku Housing
+# Farmers Connect
 
-Laravel 12 website and farm workspace for Wanguku Housing. This project is separate from the earlier PHP site and its `wanguku_farm` database.
+Laravel 12 website and farm operations workspace connecting local farmers with customers and a farmer-to-farmer resource network. The platform grew from the Wanguku farm in Juja, operating since 2021.
 
 ## Included features
 
@@ -56,3 +56,12 @@ The Laravel app must be served from this project's `public/` directory. For a pu
 ## Resource Center map connection
 
 When the Resource Center Docker app is running, set `RESOURCE_MAP_SYNC_ENABLED=true`, `RESOURCE_MAP_URL=http://127.0.0.1:8080`, `RESOURCE_MAP_PUBLIC_URL=http://127.0.0.1:8080/map`, and the shared `RESOURCE_MAP_TOKEN` in `.env`. Use the same token as `WANGUKU_SYNC_TOKEN` in the Resource Center root `.env`. Run `php artisan resource-map:sync-farms` once to publish existing farmers who opted in. Thereafter profile consent, new produce listings and stock changes update the Resource Center automatically. Only opted-in farmer locations and available product information are sent; buyer locations are never sent to the Resource Center.
+# Farmers Connect deployment setup
+
+The Render service keeps the existing `wanguku-housing-project` address while displaying the Farmers Connect brand. Before phone-based signup, OTP login, or password reset can send messages, add these private values in **Render → service → Environment**:
+
+- `AFRICASTALKING_USERNAME`
+- `AFRICASTALKING_API_KEY`
+- `AFRICASTALKING_SENDER_ID` (optional; use only a sender name approved for the account)
+
+Do not commit provider keys. Farmer accounts remain private until an administrator reviews and approves them. Marketplace orders currently request an order; they do not collect payment. M-Pesa/Daraja credentials and callback handling are not part of this deployment.

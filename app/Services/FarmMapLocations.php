@@ -10,6 +10,7 @@ class FarmMapLocations
     {
         return User::query()
             ->where('role', 'farmer')
+            ->whereNotNull('farmer_verified_at')
             ->where('show_on_map', true)
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')

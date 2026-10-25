@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Your profile')
 @section('content')
-<section class="form-page"><div class="form-card wide"><span class="eyebrow">{{ strtoupper($user->role) }} PROFILE</span><h1>Your Wanguku profile.</h1><p>Keep your contact details and location up to date so the farm network can connect with you.</p>
+<section class="form-page"><div class="form-card wide"><span class="eyebrow">{{ strtoupper($user->role) }} PROFILE</span><h1>Your Farmers Connect profile.</h1><p>Keep your contact details and location up to date so the farm network can connect with you.</p>
 @if($errors->any())<div class="error-list"><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="form-stack">@csrf @method('PUT')
 <div class="profile-photo-row">@if($user->profile_photo_path)<img src="{{ asset('storage/'.$user->profile_photo_path) }}" alt="Profile photo" class="profile-photo">@else<div class="profile-placeholder">{{ strtoupper(substr($user->name, 0, 1)) }}</div>@endif<label>Profile photo<input type="file" name="profile_photo" accept="image/*"><small>JPG, PNG or WebP · up to 3 MB</small></label></div>

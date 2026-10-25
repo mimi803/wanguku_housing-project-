@@ -20,13 +20,14 @@ class HomeController extends Controller
         $category = $request->query('cat');
         if (! array_key_exists($category, $categories)) $category = null;
         $products = Product::with('farmer')->where('stock', '>', 0)
+            ->whereHas('farmer', fn ($query) => $query->where('role', 'farmer')->whereNotNull('farmer_verified_at'))
             ->when($category, fn ($query) => $query->where('category', $category))
             ->latest('created_at')->limit(3)->get();
         return view('home', [
             'products' => $products,
             'categories' => $categories,
             'selectedCategory' => $category,
-            'farmers' => User::where('role', 'farmer')->whereNotNull('phone')->latest('id')->limit(6)->get(),
+            'farmers' => User::where('role', 'farmer')->whereNotNull('farmer_verified_at')->whereNotNull('phone')->latest('id')->limit(6)->get(),
             'mapFarmers' => app(FarmMapLocations::class)->publicFarms(),
             'customerLocation' => $this->customerLocation($request),
             'articles' => Article::latest('created_at')->limit(3)->get(),

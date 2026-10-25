@@ -16,8 +16,9 @@ class ShopController extends Controller
             'q' => ['nullable', 'string', 'max:100'],
             'farmer' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'farmer'))],
         ]);
-        $farmer = isset($filters['farmer']) ? User::query()->where('role', 'farmer')->findOrFail($filters['farmer']) : null;
+        $farmer = isset($filters['farmer']) ? User::query()->where('role', 'farmer')->whereNotNull('farmer_verified_at')->findOrFail($filters['farmer']) : null;
         $products = Product::with('farmer')->where('stock', '>', 0)
+            ->whereHas('farmer', fn ($query) => $query->where('role', 'farmer')->whereNotNull('farmer_verified_at'))
             ->when($filters['category'] ?? null, fn ($query, $category) => $query->where('category', $category))
             ->when($filters['farmer'] ?? null, fn ($query, $farmerId) => $query->where('farmer_id', $farmerId))
             ->when($filters['q'] ?? null, fn ($query, $term) => $query->where('title', 'like', '%'.$term.'%'))

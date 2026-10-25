@@ -20,6 +20,10 @@ class RequireRole
             abort(403, 'You do not have access to this farm workspace.');
         }
 
+        if ($user->role === 'farmer' && in_array('farmer', $roles, true) && ! $user->farmer_verified_at && ! $request->routeIs('farmer.pending')) {
+            return redirect()->route('farmer.pending');
+        }
+
         return $next($request);
     }
 }

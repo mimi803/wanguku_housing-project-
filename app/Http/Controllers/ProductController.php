@@ -21,6 +21,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless($request->user()->role === 'admin' || $request->user()->farmer_verified_at, 403, 'Your farmer profile must be verified before you can publish produce.');
         $data = $request->validate([
             'title' => ['required', 'string', 'max:150'],
             'category' => ['required', Rule::in(array_keys(Product::CATEGORIES))],
@@ -42,7 +43,7 @@ class ProductController extends Controller
 
         $response = back()->with('status', 'Your listing is now visible to customers.');
         if ($farmer->show_on_map && ! $synced) {
-            $response->with('integration_warning', 'Your Wanguku listing is saved, but the Resource Map could not be updated. Check the map connection settings.');
+            $response->with('integration_warning', 'Your Farmers Connect listing is saved, but the Resource Map could not be updated. Check the map connection settings.');
         }
 
         return $response;

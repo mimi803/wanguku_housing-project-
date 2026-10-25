@@ -21,6 +21,13 @@ return [
         'token' => env('RESOURCE_MAP_TOKEN'),
     ],
 
+    'africas_talking' => [
+        'username' => env('AFRICASTALKING_USERNAME'),
+        'api_key' => env('AFRICASTALKING_API_KEY'),
+        'sender_id' => env('AFRICASTALKING_SENDER_ID'),
+        'base_url' => env('AFRICASTALKING_BASE_URL', 'https://api.africastalking.com'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

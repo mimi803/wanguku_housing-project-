@@ -52,7 +52,7 @@ class OrderController extends Controller
             app(ResourceMapClient::class)->sync($order->product->farmer);
         }
 
-        return redirect()->route('orders.mine')->with('status', 'Order request sent. Contact the farmer to agree on payment and collection or delivery.');
+        return redirect()->route('orders.mine')->with('status', 'Order request sent. Payment is not collected in the app yet; agree on payment and collection or delivery directly with the farmer.');
     }
 
     public function buyerIndex(Request $request)

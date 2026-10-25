@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PhoneVerificationController;
+use App\Http\Controllers\FarmerVerificationController;
 use App\Http\Controllers\BuyerAccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmDailyRecordController;
@@ -17,8 +19,6 @@ use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -36,30 +36,24 @@ Route::middleware('guest')->group(function () {
     Route::get('/join/{role}', [AuthController::class, 'showRegisterRole'])->where('role', 'farmer|buyer')->name('register.role');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
     Route::get('/forgot-password', fn () => view('auth.forgot-password'))->name('password.request');
-    Route::post('/forgot-password', function (Request $request) {
-        $request->validate(['email' => ['required', 'email']]);
-        $status = Password::sendResetLink($request->only('email'));
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withErrors(['email' => __($status)]);
-    })->middleware('throttle:5,1')->name('password.email');
-    Route::get('/reset-password/{token}', fn (string $token) => view('auth.reset-password', ['token' => $token, 'email' => request('email')]))->name('password.reset');
-    Route::post('/reset-password', function (Request $request) {
-        $data = $request->validate(['token' => ['required'], 'email' => ['required', 'email'], 'password' => ['required', 'string', 'min:8', 'confirmed']]);
-        $status = Password::reset($data, function ($user, $password) {
-            $user->forceFill(['password' => bcrypt($password)])->save();
-        });
-        return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', __($status))
-            : back()->withErrors(['email' => [__($status)]])->withInput($request->only('email'));
-    })->middleware('throttle:5,1')->name('password.update');
+    Route::post('/forgot-password', [AuthController::class, 'requestPasswordReset'])->middleware('throttle:5,1')->name('password.email');
 });
+Route::get('/reset-password/{token}', fn () => abort(404))->middleware('guest')->name('password.reset');
+Route::post('/reset-password', fn () => abort(404))->middleware('guest')->name('password.update');
+Route::get('/verify-phone', [PhoneVerificationController::class, 'show'])->name('phone.verify');
+Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])->middleware('throttle:6,1')->name('phone.verify.store');
+Route::post('/verify-phone/resend', [PhoneVerificationController::class, 'resend'])->middleware('throttle:3,10')->name('phone.verify.resend');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 Route::get('/account', BuyerAccountController::class)->middleware(['auth', 'role:buyer,admin'])->name('account');
+Route::get('/farm/pending-verification', [FarmerVerificationController::class, 'pending'])->middleware(['auth', 'role:farmer'])->name('farmer.pending');
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/farmers', [FarmerVerificationController::class, 'index'])->name('farmers');
+    Route::patch('/farmers/{user}/approve', [FarmerVerificationController::class, 'approve'])->middleware('throttle:20,1')->name('farmers.approve');
+});
 Route::middleware(['auth', 'role:farmer,admin'])->prefix('farm')->name('farm.')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/products', [ProductController::class, 'index'])->name('products');
