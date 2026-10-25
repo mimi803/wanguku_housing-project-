@@ -5,7 +5,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/farmers-connect.svg') }}?v={{ filemtime(public_path('images/farmers-connect.svg')) }}">
     <meta name="theme-color" content="#153f32">
-    <title>@yield('title', 'Farmers Connect') · Farmers Connect</title>
+    <title>@yield('title', 'Farmers Connect') · RMC Farmers Connect</title>
     <script>(()=>{let theme='light';try{const saved=localStorage.getItem('farmers-connect-theme');theme=saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch{}document.documentElement.dataset.theme=theme})();</script>
     <link rel="stylesheet" href="{{ asset('css/wanguku.css') }}?v={{ filemtime(public_path('css/wanguku.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/theme.css') }}?v={{ filemtime(public_path('css/theme.css')) }}">
@@ -13,10 +13,10 @@
 </head>
 <body>
 <header class="site-header">
-    <a class="brand" href="{{ route('home') }}" aria-label="Farmers Connect home"><span class="brand-monogram" aria-hidden="true">FC</span><span class="brand-name">Farmers Connect<small>LOCAL FOOD · SHARED KNOWLEDGE</small></span></a>
+    <a class="brand" href="{{ route('home') }}" aria-label="RMC Farmers Connect home"><span class="brand-monogram" aria-hidden="true">FC</span><span class="brand-name">RMC Farmers Connect<small>RESOURCE MAP CENTRE</small></span></a>
     <button class="mobile-nav-toggle" type="button" data-nav-toggle aria-controls="primary-navigation" aria-expanded="false"><span aria-hidden="true">☰</span><span data-nav-label>Menu</span></button>
     <nav id="primary-navigation" class="site-nav" data-site-nav>
-        <div class="nav-links"><a href="{{ route('shop') }}">Shop</a><a href="{{ route('farm-map') }}">Farm map</a><a href="{{ route('home') }}#farmer-connect">Farmer network</a><a href="{{ route('home') }}#vision">Vision 2035</a>@if(config('services.resource_map.public_url'))<a href="{{ config('services.resource_map.public_url') }}" target="_blank" rel="noopener">Resource map</a>@endif</div>
+        <div class="nav-links"><a href="{{ route('shop') }}">Shop</a><a href="{{ route('seed-bank.index') }}">Seed bank</a><a href="{{ route('farm-map') }}">Farm map</a><a href="{{ route('home') }}#farmer-connect">Farmer network</a><a href="{{ route('home') }}#vision">Vision 2035</a>@if(config('services.resource_map.public_url'))<a href="{{ config('services.resource_map.public_url') }}" target="_blank" rel="noopener">Resource map</a>@endif</div>
         <div class="nav-actions">
             <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" title="Switch theme"><span data-theme-glyph aria-hidden="true">☾</span><span data-theme-label>Dark</span></button>
             @auth
@@ -30,7 +30,7 @@
     </nav>
 </header>
 <main>@if(session('status'))<div class="flash">{{ session('status') }}</div>@endif @if(session('integration_warning'))<div class="flash" role="status">{{ session('integration_warning') }}</div>@endif @yield('content')</main>
-<footer class="site-footer"><div><a class="brand brand-light" href="{{ route('home') }}"><span class="brand-monogram" aria-hidden="true">FC</span><span class="brand-name">Farmers Connect<small>LOCAL FOOD · SHARED KNOWLEDGE</small></span></a><p>Growing food. Growing forward.</p></div><span>Connecting farmers and customers</span></footer>
+<footer class="site-footer"><div><a class="brand brand-light" href="{{ route('home') }}"><span class="brand-monogram" aria-hidden="true">FC</span><span class="brand-name">RMC Farmers Connect<small>RESOURCE MAP CENTRE</small></span></a><p>Growing food. Growing forward.</p></div><span>Connecting farmers and customers</span></footer>
 @stack('scripts')
 <script>
 (() => {

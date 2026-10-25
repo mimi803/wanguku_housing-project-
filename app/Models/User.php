@@ -65,4 +65,6 @@ class User extends Authenticatable
     public function products() { return $this->hasMany(Product::class, 'farmer_id'); }
     public function orders() { return $this->hasMany(Order::class, 'buyer_id'); }
     public function farmOperationLogs() { return $this->hasMany(FarmOperationLog::class, 'farmer_id'); }
+    public function seedBankListings() { return $this->hasMany(SeedBankListing::class, 'farmer_id'); }
+    public function seedBankRequests() { return $this->hasMany(SeedBankRequest::class, 'requester_id'); }
 }

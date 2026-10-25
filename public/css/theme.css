@@ -166,8 +166,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     .brand-name { font-size: 14px; }
     .brand-name small { font-size: 6px; }
     .mobile-nav-toggle { min-height: 40px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-raised); color: var(--ink); font-size: 12px; font-weight: 800; }
-    .site-nav { flex: 0 0 100%; display: none; align-items: stretch; gap: 0; padding: 9px 0 4px; border-top: 1px solid var(--line); }
-    .site-nav[data-open="true"] { display: flex; flex-direction: column; }
+    /* The legacy `.site-header nav` selector is more specific than `.site-nav`.
+       Match it here so a closed mobile menu is actually hidden. */
+    .site-header > .mobile-nav-toggle[aria-expanded="false"] + nav.site-nav { flex: 0 0 100%; display: none !important; }
+    .site-header > .mobile-nav-toggle[aria-expanded="true"] + nav.site-nav { flex: 0 0 100%; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 9px 0 4px; border-top: 1px solid var(--line); }
     .nav-links, .nav-actions { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
     .nav-links a, .nav-actions > a, .nav-actions > form, .nav-actions .theme-toggle { min-height: 42px; padding: 10px 11px; display: flex; align-items: center; justify-content: flex-start; border-radius: 11px; background: var(--surface-soft); color: var(--ink); font-size: 12px; }
     .nav-actions .theme-toggle { justify-content: center; }
@@ -201,4 +203,48 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* Resource Map Centre starting pages */
+.rmc-resource-links { max-width: 1200px; margin: 0 auto; padding: 8px 28px 44px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rmc-resource-links > a { min-width: 0; padding: 22px; display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-raised); box-shadow: var(--shadow); }
+.rmc-resource-links strong { color: var(--ink); font: 800 20px/1.2 Manrope, sans-serif; letter-spacing: -.04em; }
+.rmc-resource-links small { color: var(--muted); font-size: 12px; line-height: 1.6; }
+.rmc-resource-links b { color: var(--leaf); font-size: 11px; }
+.seed-search { display: flex; align-items: end; gap: 12px; margin: 0 0 20px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-raised); }
+.seed-search label, .seed-request-form label { flex: 1; min-width: 0; display: grid; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.seed-search input, .seed-search select, .seed-request-form input { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; }
+.seed-listings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; }
+.seed-card, .seed-manage-card, .seed-request-card { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface-raised); box-shadow: var(--shadow); }
+.seed-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.seed-card h2, .seed-manage-card h3, .seed-request-card h3 { margin: 11px 0 5px; color: var(--ink); font: 800 20px/1.2 Manrope, sans-serif; letter-spacing: -.035em; }
+.seed-source, .seed-note, .seed-manage-card p, .seed-request-card p { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.seed-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 15px 0 10px; }
+.seed-facts span { min-width: 0; padding: 10px; display: grid; gap: 4px; border-radius: 11px; background: var(--surface-soft); }
+.seed-facts small { color: var(--muted); font-size: 9px; }
+.seed-facts b { overflow-wrap: anywhere; color: var(--ink); font-size: 10px; }
+.seed-seller { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.seed-request-form { margin-top: 14px; display: grid; grid-template-columns: minmax(80px, .6fr) minmax(120px, 1fr) auto; align-items: end; gap: 8px; }
+.seed-create-panel { max-width: 800px; margin-bottom: 27px; }
+.seed-create-panel h2, .seed-manage-section .panel-head h2 { margin: 6px 0 0; color: var(--ink); font: 800 22px Manrope, sans-serif; }
+.seed-manage-section { margin-top: 26px; }
+.seed-manage-section .panel-head { margin-bottom: 12px; }
+.seed-manage-card, .seed-request-card { margin-bottom: 10px; }
+.seed-manage-card h3 { margin: 8px 0 0; }
+.seed-manage-card p { margin: 4px 0; }
+.seed-manage-card details { width: 100%; }
+.seed-manage-card summary { color: var(--leaf); cursor: pointer; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.seed-manage-card details[open] { flex: 1 1 100%; margin-top: 14px; }
+.seed-manage-card > .seed-card-head { flex-wrap: wrap; }
+.seed-request-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.seed-request-actions { display: flex; gap: 8px; }
+.seed-request-actions form { margin: 0; }
+@media (max-width: 760px) {
+    .rmc-resource-links { padding: 4px 21px 34px; grid-template-columns: 1fr; }
+    .seed-search { align-items: stretch; flex-direction: column; }
+    .seed-search .button { width: 100%; }
+    .seed-listings { grid-template-columns: 1fr; }
+    .seed-request-form { grid-template-columns: 1fr; }
+    .seed-seller, .seed-request-card { align-items: stretch; flex-direction: column; }
+    .seed-request-actions { flex-wrap: wrap; }
 }

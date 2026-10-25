@@ -19,11 +19,14 @@ use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SeedBankController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/farm-map', FarmMapController::class)->name('farm-map');
 Route::get('/shop', ShopController::class)->name('shop');
+Route::get('/seed-bank', [SeedBankController::class, 'index'])->name('seed-bank.index');
+Route::post('/seed-bank/{listing}/requests', [SeedBankController::class, 'requestSeed'])->middleware(['auth', 'role:farmer,admin', 'throttle:10,1'])->name('seed-bank.requests.store');
 Route::middleware(['auth', 'role:buyer,admin'])->group(function () {
     Route::get('/shop/{product}/order', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/shop/{product}/order', [OrderController::class, 'store'])->middleware('throttle:10,1')->name('orders.store');
@@ -56,6 +59,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 Route::middleware(['auth', 'role:farmer,admin'])->prefix('farm')->name('farm.')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/seed-bank', [SeedBankController::class, 'manage'])->name('seed-bank');
+    Route::post('/seed-bank', [SeedBankController::class, 'store'])->name('seed-bank.store');
+    Route::patch('/seed-bank/{listing}', [SeedBankController::class, 'update'])->name('seed-bank.update');
+    Route::patch('/seed-bank/requests/{seedRequest}', [SeedBankController::class, 'respond'])->name('seed-bank.requests.respond');
     Route::get('/products', [ProductController::class, 'index'])->name('products');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::get('/operations', [OperationsController::class, 'index'])->name('operations');
