@@ -16,12 +16,17 @@ class PhoneVerificationCodes
             throw new \RuntimeException('Too many code requests. Please wait before trying again.');
         }
 
-        if (! in_array($purpose, ['register', 'login', 'reset'], true)) {
+        if (! in_array($purpose, ['register', 'login', 'reset', 'change_phone'], true)) {
             throw new \InvalidArgumentException('Unsupported phone verification purpose.');
         }
 
         $code = (string) random_int(100000, 999999);
-        $purposeText = $purpose === 'register' ? 'finish creating your account' : ($purpose === 'reset' ? 'reset your password' : 'sign in');
+        $purposeText = match ($purpose) {
+            'register' => 'finish creating your account',
+            'reset' => 'reset your password',
+            'change_phone' => 'verify your new phone number',
+            default => 'sign in',
+        };
         $this->sms->send($phone, "Farmers Connect code: {$code}. Use it to {$purposeText}. Expires in 10 minutes.");
 
         Cache::put($this->cacheKey($phone), [

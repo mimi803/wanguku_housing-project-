@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\ResourceMapClient;
+use App\Services\KenyanPhoneNumber;
+use App\Services\PhoneVerificationCodes;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,6 +28,37 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+        $phoneService = app(KenyanPhoneNumber::class);
+        $newPhone = $phoneService->normalize($data['phone']);
+        if (! $newPhone) {
+            return back()->withErrors(['phone' => 'Enter a valid Kenyan mobile number, such as 0712 345 678.'])->withInput();
+        }
+
+        $currentPhone = $phoneService->normalize((string) $user->phone);
+        $changingPhone = $newPhone !== $currentPhone;
+        if ($changingPhone && User::query()->whereIn('phone', $phoneService->lookupVariants($newPhone))->whereKeyNot($user->getKey())->exists()) {
+            return back()->withErrors(['phone' => 'That phone number is already linked to another account.'])->withInput();
+        }
+
+        if ($changingPhone) {
+            try {
+                app(PhoneVerificationCodes::class)->send($newPhone, 'change_phone');
+            } catch (\RuntimeException $exception) {
+                $message = str_contains($exception->getMessage(), 'Too many')
+                    ? $exception->getMessage()
+                    : 'We could not send a verification code. Check that Farmers Connect SMS is configured, then try again.';
+
+                return back()->withErrors(['phone' => $message])->withInput();
+            }
+
+            $request->session()->put('pending_phone_verification', [
+                'phone' => $newPhone,
+                'purpose' => 'change_phone',
+                'user_id' => $user->id,
+            ]);
+        }
+
+        $data['phone'] = $changingPhone ? $user->phone : $newPhone;
         if ($user->role === 'farmer') {
             $data['show_on_map'] = $request->boolean('show_on_map')
                 && isset($data['latitude'], $data['longitude'])
@@ -37,7 +71,9 @@ class ProfileController extends Controller
         }
         $user->forceFill($data)->save();
 
-        $response = back()->with('status', 'Your profile has been updated.');
+        $response = $changingPhone
+            ? redirect()->route('phone.verify')->with('status', 'Your profile was saved. Verify your new phone number to finish updating your account.')
+            : back()->with('status', 'Your profile has been updated.');
         if ($user->role === 'farmer') {
             $map = app(ResourceMapClient::class);
             $synced = $user->show_on_map ? $map->sync($user) : $map->remove($user);

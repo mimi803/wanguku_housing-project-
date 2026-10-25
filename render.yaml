@@ -36,6 +36,14 @@ services:
         value: "false"
       - key: RESOURCE_MAP_PUBLIC_URL
         value: ""
+      - key: AFRICASTALKING_USERNAME
+        sync: false
+      - key: AFRICASTALKING_API_KEY
+        sync: false
+      - key: AFRICASTALKING_SENDER_ID
+        sync: false
+      - key: AFRICASTALKING_BASE_URL
+        value: https://api.africastalking.com
 
 databases:
   - name: wanguku-housing-db

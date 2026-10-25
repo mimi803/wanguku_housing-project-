@@ -90,6 +90,15 @@ class FarmersConnectAccessTest extends TestCase
         $this->actingAs($buyer)->get('/farm/dashboard')->assertForbidden();
     }
 
+    public function test_customer_and_verified_farmer_accounts_open_their_own_workspaces(): void
+    {
+        $buyer = User::factory()->create(['role' => 'buyer']);
+        $this->actingAs($buyer)->get('/account')->assertOk()->assertSee('Customer account');
+
+        $farmer = User::factory()->create(['role' => 'farmer', 'farmer_verified_at' => now()]);
+        $this->actingAs($farmer)->get('/farm/dashboard')->assertOk()->assertSee('Farm tools');
+    }
+
     public function test_authenticated_user_can_log_out(): void
     {
         $buyer = User::factory()->create(['role' => 'buyer']);
@@ -188,5 +197,74 @@ class FarmersConnectAccessTest extends TestCase
 
         $this->assertDatabaseCount('users', 0);
         Http::assertSent(fn ($request) => $request['to'] === '+254712345678');
+    }
+
+    public function test_password_reset_completes_by_sms_and_new_password_allows_sign_in(): void
+    {
+        config([
+            'services.africas_talking.username' => 'sandbox',
+            'services.africas_talking.api_key' => 'test-key',
+        ]);
+        $message = '';
+        Http::fake(function ($request) use (&$message) {
+            $message = (string) $request['message'];
+
+            return Http::response(['SMSMessageData' => ['Recipients' => [['statusCode' => '101']]]], 200);
+        });
+
+        User::factory()->create([
+            'role' => 'buyer',
+            'phone' => '+254712345678',
+            'password' => bcrypt('old-password'),
+            'phone_verified_at' => now(),
+        ]);
+
+        $this->post('/forgot-password', ['phone' => '0712345678'])->assertRedirect('/verify-phone');
+        $this->get('/verify-phone')->assertOk()->assertSee('Reset your password');
+        preg_match('/code: (\d{6})/', $message, $matches);
+        $this->assertNotEmpty($matches[1] ?? null, 'The SMS message should contain a six-digit reset code.');
+
+        $this->post('/verify-phone', [
+            'code' => $matches[1],
+            'password' => 'new-secure-password',
+            'password_confirmation' => 'new-secure-password',
+        ])->assertRedirect('/login');
+
+        $this->post('/login', ['phone' => '0712345678', 'password' => 'new-secure-password'])
+            ->assertRedirect('/account');
+        $this->assertAuthenticated();
+    }
+
+    public function test_profile_phone_change_requires_sms_verification_before_replacing_sign_in_number(): void
+    {
+        config([
+            'services.africas_talking.username' => 'sandbox',
+            'services.africas_talking.api_key' => 'test-key',
+        ]);
+        $message = '';
+        Http::fake(function ($request) use (&$message) {
+            $message = (string) $request['message'];
+
+            return Http::response(['SMSMessageData' => ['Recipients' => [['statusCode' => '101']]]], 200);
+        });
+
+        $buyer = User::factory()->create([
+            'role' => 'buyer',
+            'phone' => '+254700000001',
+            'phone_verified_at' => now(),
+        ]);
+
+        $this->actingAs($buyer)->put('/profile', [
+            'name' => $buyer->name,
+            'phone' => '0712345678',
+            'location_name' => 'Juja',
+        ])->assertRedirect('/verify-phone');
+        $this->assertSame('+254700000001', $buyer->fresh()->phone);
+
+        preg_match('/code: (\d{6})/', $message, $matches);
+        $this->assertNotEmpty($matches[1] ?? null, 'The SMS message should contain a six-digit phone verification code.');
+        $this->post('/verify-phone', ['code' => $matches[1]])->assertRedirect('/profile');
+        $this->assertSame('+254712345678', $buyer->fresh()->phone);
+        $this->assertNotNull($buyer->fresh()->phone_verified_at);
     }
 }
