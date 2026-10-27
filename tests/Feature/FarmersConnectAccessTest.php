@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\SeedBankListing;
 use App\Models\SeedBankRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class FarmersConnectAccessTest extends TestCase
@@ -189,6 +191,7 @@ class FarmersConnectAccessTest extends TestCase
 
         $this->post('/register', [
             'name' => 'Test Customer',
+            'email' => 'customer@example.test',
             'phone' => '0712345678',
             'role' => 'buyer',
             'password' => 'secure-password',
@@ -199,40 +202,66 @@ class FarmersConnectAccessTest extends TestCase
         Http::assertSent(fn ($request) => $request['to'] === '+254712345678');
     }
 
-    public function test_password_reset_completes_by_sms_and_new_password_allows_sign_in(): void
+    public function test_password_reset_completes_by_email_and_new_password_allows_sign_in(): void
     {
-        config([
-            'services.africas_talking.username' => 'sandbox',
-            'services.africas_talking.api_key' => 'test-key',
-        ]);
-        $message = '';
-        Http::fake(function ($request) use (&$message) {
-            $message = (string) $request['message'];
-
-            return Http::response(['SMSMessageData' => ['Recipients' => [['statusCode' => '101']]]], 200);
-        });
-
-        User::factory()->create([
+        $user = User::factory()->create([
             'role' => 'buyer',
+            'email' => 'customer@example.test',
             'phone' => '+254712345678',
             'password' => bcrypt('old-password'),
             'phone_verified_at' => now(),
         ]);
+        Notification::fake();
 
-        $this->post('/forgot-password', ['phone' => '0712345678'])->assertRedirect('/verify-phone');
-        $this->get('/verify-phone')->assertOk()->assertSee('Reset your password');
-        preg_match('/code: (\d{6})/', $message, $matches);
-        $this->assertNotEmpty($matches[1] ?? null, 'The SMS message should contain a six-digit reset code.');
+        $this->get('/forgot-password')->assertOk()->assertSee('Reset by email');
+        $this->post('/forgot-password', ['email' => 'CUSTOMER@example.test'])
+            ->assertRedirect('/forgot-password')
+            ->assertSessionHas('status');
 
-        $this->post('/verify-phone', [
-            'code' => $matches[1],
+        $token = null;
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use (&$token): bool {
+            $token = $notification->token;
+            return true;
+        });
+
+        $this->get('/reset-password/'.$token.'?email='.urlencode($user->email))
+            ->assertOk()
+            ->assertSee('Choose a new password');
+        $this->post('/reset-password', [
+            'token' => $token,
+            'email' => $user->email,
             'password' => 'new-secure-password',
             'password_confirmation' => 'new-secure-password',
-        ])->assertRedirect('/login');
+        ])->assertRedirect('/login')->assertSessionHas('status');
 
         $this->post('/login', ['phone' => '0712345678', 'password' => 'new-secure-password'])
             ->assertRedirect('/account');
         $this->assertAuthenticated();
+    }
+
+    public function test_signup_requires_an_email_address_for_recovery(): void
+    {
+        $this->from('/join/buyer')->post('/register', [
+            'name' => 'Test Customer',
+            'phone' => '0712345678',
+            'role' => 'buyer',
+            'password' => 'secure-password',
+            'password_confirmation' => 'secure-password',
+        ])->assertRedirect('/join/buyer')->assertSessionHasErrors('email');
+    }
+
+    public function test_profile_can_update_the_password_recovery_email(): void
+    {
+        $buyer = User::factory()->create(['role' => 'buyer', 'email' => 'old@example.test', 'phone' => '+254712345678']);
+
+        $this->actingAs($buyer)->put('/profile', [
+            'name' => $buyer->name,
+            'email' => 'New.Address@example.test',
+            'phone' => $buyer->phone,
+            'location_name' => $buyer->location_name,
+        ])->assertRedirect('/')->assertSessionHas('status');
+
+        $this->assertSame('new.address@example.test', $buyer->fresh()->email);
     }
 
     public function test_profile_phone_change_requires_sms_verification_before_replacing_sign_in_number(): void
@@ -256,6 +285,7 @@ class FarmersConnectAccessTest extends TestCase
 
         $this->actingAs($buyer)->put('/profile', [
             'name' => $buyer->name,
+            'email' => $buyer->email,
             'phone' => '0712345678',
             'location_name' => 'Juja',
         ])->assertRedirect('/verify-phone');

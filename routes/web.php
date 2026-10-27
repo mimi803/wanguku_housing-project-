@@ -39,10 +39,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/join/{role}', [AuthController::class, 'showRegisterRole'])->where('role', 'farmer|buyer')->name('register.role');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
     Route::get('/forgot-password', fn () => view('auth.forgot-password'))->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'requestPasswordReset'])->middleware('throttle:5,1')->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendPasswordResetLink'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
 });
-Route::get('/reset-password/{token}', fn () => abort(404))->middleware('guest')->name('password.reset');
-Route::post('/reset-password', fn () => abort(404))->middleware('guest')->name('password.update');
 Route::get('/verify-phone', [PhoneVerificationController::class, 'show'])->name('phone.verify');
 Route::post('/verify-phone', [PhoneVerificationController::class, 'verify'])->middleware('throttle:6,1')->name('phone.verify.store');
 Route::post('/verify-phone/resend', [PhoneVerificationController::class, 'resend'])->middleware('throttle:3,10')->name('phone.verify.resend');

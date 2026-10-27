@@ -30,6 +30,22 @@ services:
         value: file
       - key: QUEUE_CONNECTION
         value: sync
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_SCHEME
+        value: tls
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: RMC Farmers Connect
       - key: FILESYSTEM_DISK
         value: public
       - key: RESOURCE_MAP_SYNC_ENABLED

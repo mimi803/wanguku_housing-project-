@@ -9,7 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -69,7 +73,7 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['nullable', 'email', 'max:100', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:20'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'in:buyer,farmer'],
@@ -83,7 +87,8 @@ class AuthController extends Controller
         if (User::query()->whereIn('phone', $phoneService->lookupVariants($phone))->exists()) {
             return back()->withErrors(['phone' => 'This phone number already has an account. Sign in instead.'])->withInput($request->except('password', 'password_confirmation'));
         }
-        if (! empty($data['email']) && User::query()->where('email', $data['email'])->exists()) {
+        $data['email'] = mb_strtolower($data['email']);
+        if (User::query()->whereRaw('LOWER(email) = ?', [$data['email']])->exists()) {
             return back()->withErrors(['email' => 'That email address is already associated with an account.'])->withInput($request->except('password', 'password_confirmation'));
         }
 
@@ -109,25 +114,55 @@ class AuthController extends Controller
         return redirect()->route('phone.verify')->with('status', 'We sent a six-digit verification code to your phone.');
     }
 
-    public function requestPasswordReset(Request $request)
+    public function sendPasswordResetLink(Request $request)
     {
-        $data = $request->validate(['phone' => ['required', 'string', 'max:30']]);
-        $phoneService = app(KenyanPhoneNumber::class);
-        $phone = $phoneService->normalize($data['phone']);
-        $matches = $phone ? User::query()->whereIn('phone', $phoneService->lookupVariants($phone))->limit(2)->get() : collect();
-        if ($matches->count() !== 1) {
-            return back()->with('status', 'If an account matches that phone number, a password reset code will be sent.');
-        }
+        $data = $request->validate(['email' => ['required', 'email', 'max:100']]);
 
-        $user = $matches->first();
-        $request->session()->put('pending_phone_verification', ['phone' => $phone, 'purpose' => 'reset', 'user_id' => $user->id]);
         try {
-            app(PhoneVerificationCodes::class)->send($phone, 'reset');
-        } catch (\RuntimeException) {
-            return back()->withErrors(['phone' => 'Phone reset could not send a code. Check that Farmers Connect SMS is configured.'])->withInput();
+            $status = Password::sendResetLink(['email' => mb_strtolower($data['email'])]);
+        } catch (Throwable $exception) {
+            Log::warning('Farmers Connect password reset email could not be sent.', ['type' => $exception::class]);
+
+            return back()->withErrors(['email' => 'Password reset email is temporarily unavailable. Please try again later.'])->withInput();
         }
 
-        return redirect()->route('phone.verify')->with('status', 'We sent a password reset code to your phone.');
+        if ($status === Password::RESET_THROTTLED) {
+            return back()->withErrors(['email' => 'Please wait a minute before requesting another reset link.'])->withInput();
+        }
+
+        return back()->with('status', 'If an account matches that email address, a password reset link will be sent.');
+    }
+
+    public function showResetPassword(Request $request, string $token)
+    {
+        return view('auth.reset-password', ['token' => $token, 'email' => $request->query('email')]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email', 'max:100'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = Password::reset(
+            [...$data, 'email' => mb_strtolower($data['email'])],
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            },
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('login')->with('status', 'Your password has been reset. Sign in with your phone number and new password.');
+        }
+
+        return back()->withErrors(['email' => 'That reset link is invalid or has expired. Request a new one and try again.'])->withInput($request->only('email'));
     }
 
     public function logout(Request $request)

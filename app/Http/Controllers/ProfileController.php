@@ -18,8 +18,10 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        $user = $request->user();
         $data = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
+            'email' => ['required', 'email', 'max:100'],
             'phone' => ['required', 'string', 'max:20'],
             'location_name' => ['nullable', 'string', 'max:150'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
@@ -27,7 +29,11 @@ class ProfileController extends Controller
             'profile_photo' => ['nullable', 'image', 'max:3072'],
         ]);
 
-        $user = $request->user();
+        $data['email'] = mb_strtolower($data['email']);
+        if (User::query()->whereRaw('LOWER(email) = ?', [$data['email']])->whereKeyNot($user->getKey())->exists()) {
+            return back()->withErrors(['email' => 'That email address is already associated with another account.'])->withInput();
+        }
+
         $phoneService = app(KenyanPhoneNumber::class);
         $newPhone = $phoneService->normalize($data['phone']);
         if (! $newPhone) {
